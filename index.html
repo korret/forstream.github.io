@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>FA 리스트</title>
+<style>
+    body { font-family: Arial; padding: 20px; }
+    table { width: 600px; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; }
+    th { background: #f8f8f8; }
+</style>
+</head>
+<body>
+
+<h2>FA 리스트</h2>
+<div id="status">불러오는 중...</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>닉네임</th>
+            <th>티어</th>
+            <th>점수</th>
+        </tr>
+    </thead>
+    <tbody id="fa-table-body"></tbody>
+</table>
+
+<script>
+async function loadFA() {
+    const payload = {
+        orderType: "point_desc",
+        filter: [],
+        searchBjNick: "",
+        minPoint: 0,
+        maxPoint: 70,
+        positionIdx: "",
+        pageNo: 1,
+        perPageNo: 30,
+        seasonIdx: 20
+    };
+
+    try {
+        const res = await fetch("https://gpapi.sooplive.co.kr/api/v1/bjmatchfa/fa/list", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        const json = await res.json();
+        document.getElementById("status").innerText = "완료";
+
+        const list = json.data.faList;
+        const tbody = document.getElementById("fa-table-body");
+
+        list.forEach(item => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${item.userNick}</td>
+                <td>${item.highTier}</td>
+                <td>${item.bjmatchPoint}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+    } catch (err) {
+        document.getElementById("status").innerText = "오류 발생: " + err;
+    }
+}
+
+loadFA();
+</script>
+
+</body>
+</html>
